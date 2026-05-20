@@ -1,65 +1,198 @@
-type: picture-elements
-elements:
-  - type: image
-    tap_action:
-      action: toggle
-    entity: switch.refrigerator_express_mode
-    image: /local/lg-icons/express-freeze-for-fridge-off.png
-    state_image:
-      'on': /local/lg-icons/express-freeze-for-fridge-on.png
-    style:
-      top: 74%
-      left: 55%
-      width: 10%
-      image-rendering: crisp
-  - type: image
-    tap_action:
-      action: toggle
-    entity: switch.refrigerator_express_fridge
-    image: /local/lg-icons/express-cool-for-fridge-off.png
-    state_image:
-      'on': /local/lg-icons/express-cool-for-fridge-on.png
-    style:
-      top: 35%
-      left: 55%
-      width: 10%
-      image-rendering: crisp
-  - type: image
-    entity: sensor.refrigerator
-    image: /local/lg-icons/wifi.png
-    state_image:
-      'on': /local/lg-icons/wifi-on.png
-    style:
-      top: 74%
-      left: 36%
-      width: 10%
-      image-rendering: crisp
-  - type: image
-    entity: binary_sensor.refrigerator_door_open
-    image: /local/lg-icons/fridge-closed.png
-    state_image:
-      'on': /local/lg-icons/fridge-open.png
-    style:
-      top: 35%
-      left: 36%
-      width: 10%
-      image-rendering: crisp
-  - type: state-label
-    entity: sensor.refrigerator_fridge_temp
-    style:
-      color: '#f5f5f5'
-      font-family: segment7
-      font-size: 50px
-      left: 96%
-      top: 35%
-      transform: translate(-100%,-50%)
-  - type: state-label
-    entity: sensor.refrigerator_freezer_temp
-    style:
-      color: '#f5f5f5'
-      font-family: segment7
-      font-size: 50px
-      left: 96%
-      top: 74%
-      transform: translate(-100%,-50%)
-image: /local/hass-dd-fridge-silver-steel-card-bg.png
+# ============================================================
+# Samsung Koelvriescombinatie Card
+# Stijl gebaseerd op phrz/lg-washer-dryer-card
+# Aangepast voor Samsung SmartThings entiteiten
+# ============================================================
+#
+# ⚠️  TEMPERATUUR BUG — voeg deze template sensors toe aan configuration.yaml
+#     (of templates.yaml als je dat gescheiden hebt):
+#
+# template:
+#   - sensor:
+#       - name: "Koelkast temperatuur °C"
+#         unique_id: koelkast_temp_celsius
+#         unit_of_measurement: "°C"
+#         device_class: temperature
+#         state: >
+#           {{ ((states('sensor.koelvriescombinatie_koelkasttemperatuur') | float - 32) * 5/9) | round(1) }}
+#
+#       - name: "Vriezer temperatuur °C"
+#         unique_id: vriezer_temp_celsius
+#         unit_of_measurement: "°C"
+#         device_class: temperature
+#         state: >
+#           {{ ((states('sensor.koelvriescombinatie_freezer_temperature') | float - 32) * 5/9) | round(1) }}
+#
+# Als de sensoren al Celsius geven, gebruik dan direct:
+#   sensor.koelvriescombinatie_koelkasttemperatuur
+#   sensor.koelvriescombinatie_freezer_temperature
+# ============================================================
+#
+# Entiteiten in gebruik:
+#   binary_sensor.koelvriescombinatie_fridge_door    → deurbewaking koelkast
+#   binary_sensor.koelvriescombinatie_freezer_door   → deurbewaking vriezer
+#   number.koelvriescombinatie_koelkasttemperatuur   → ingestelde koelkast temp
+#   number.koelvriescombinatie_freezer_temperature   → ingestelde vriezer temp
+#   sensor.koelvriescombinatie_vermogen              → huidig vermogen (W)
+#   sensor.koelvriescombinatie_energie               → totaal energie (kWh)
+#   switch.koelvriescombinatie_power_cool            → snelkoelen
+#   switch.koelvriescombinatie_power_freeze          → snelvriezen
+# ============================================================
+
+type: vertical-stack
+cards:
+
+  # --- Hoofd visualisatie card ---
+  - type: picture-elements
+    elements:
+
+      # Koelkast deur indicator
+      - type: state-icon
+        entity: binary_sensor.koelvriescombinatie_fridge_door
+        icon: mdi:fridge-top
+        state_color: true
+        style:
+          top: 30%
+          left: 25%
+          '--paper-item-icon-color': '#0099cc'
+          '--paper-item-icon-active-color': '#f44336'
+
+      # Vriezer deur indicator
+      - type: state-icon
+        entity: binary_sensor.koelvriescombinatie_freezer_door
+        icon: mdi:fridge-bottom
+        state_color: true
+        style:
+          top: 30%
+          left: 50%
+          '--paper-item-icon-color': '#053752'
+          '--paper-item-icon-active-color': '#f44336'
+
+      # Power Cool indicator
+      - type: state-icon
+        entity: switch.koelvriescombinatie_power_cool
+        icon: mdi:snowflake-alert
+        state_color: true
+        style:
+          top: 30%
+          left: 75%
+          '--paper-item-icon-color': '#607d8b'
+          '--paper-item-icon-active-color': '#00bcd4'
+
+      # Deur open waarschuwing — koelkast
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.koelvriescombinatie_fridge_door
+            state: 'on'
+        elements:
+          - type: state-label
+            entity: binary_sensor.koelvriescombinatie_fridge_door
+            prefix: '⚠ KOELKAST OPEN'
+            style:
+              color: '#f44336'
+              font-size: 14px
+              font-weight: bold
+              top: 55%
+              left: 50%
+              transform: 'translate(-50%, -50%)'
+
+      # Deur open waarschuwing — vriezer
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.koelvriescombinatie_freezer_door
+            state: 'on'
+        elements:
+          - type: state-label
+            entity: binary_sensor.koelvriescombinatie_freezer_door
+            prefix: '⚠ VRIEZER OPEN'
+            style:
+              color: '#f44336'
+              font-size: 14px
+              font-weight: bold
+              top: 65%
+              left: 50%
+              transform: 'translate(-50%, -50%)'
+
+      # Koelkast temp display — achtergrond (dimmed)
+      - type: state-label
+        entity: sensor.koelvriescombinatie_vermogen
+        prefix: '00°C'
+        style:
+          color: '#555'
+          font-family: segment7
+          font-size: 40px
+          left: 72%
+          top: 74%
+          transform: 'translate(-100%,-50%)'
+
+      # Koelkast temp display — actief (blauw)
+      # Gebruik sensor.koelkast_temp_celsius als je de template hierboven toevoegt
+      # Anders tijdelijk: number.koelvriescombinatie_koelkasttemperatuur
+      - type: state-label
+        entity: number.koelvriescombinatie_koelkasttemperatuur
+        suffix: '°C'
+        style:
+          color: '#00bcd4'
+          font-family: segment7
+          font-size: 40px
+          left: 72%
+          top: 74%
+          transform: 'translate(-100%,-50%)'
+
+      # Vriezer temp display — achtergrond
+      - type: state-label
+        entity: sensor.koelvriescombinatie_vermogen
+        prefix: '00°C'
+        style:
+          color: '#555'
+          font-family: segment7
+          font-size: 40px
+          left: 98%
+          top: 74%
+          transform: 'translate(-100%,-50%)'
+
+      # Vriezer temp display — actief (donkerblauw)
+      - type: state-label
+        entity: number.koelvriescombinatie_freezer_temperature
+        suffix: '°C'
+        style:
+          color: '#8df427'
+          font-family: segment7
+          font-size: 40px
+          left: 98%
+          top: 74%
+          transform: 'translate(-100%,-50%)'
+
+      image: /local/hass-washer-card-bg.png
+
+  # --- Status + bediening ---
+  - type: entities
+    entities:
+      - entity: binary_sensor.koelvriescombinatie_fridge_door
+        name: Koelkastdeur
+        icon: mdi:fridge-top
+      - entity: binary_sensor.koelvriescombinatie_freezer_door
+        name: Vriezerdeur
+        icon: mdi:fridge-bottom
+      - type: divider
+      - entity: number.koelvriescombinatie_koelkasttemperatuur
+        name: Koelkast instelling
+        icon: mdi:coolant-temperature
+      - entity: number.koelvriescombinatie_freezer_temperature
+        name: Vriezer instelling
+        icon: mdi:snowflake-thermometer
+      - type: divider
+      - entity: switch.koelvriescombinatie_power_cool
+        name: Power Cool (snelkoelen)
+        icon: mdi:snowflake-alert
+      - entity: switch.koelvriescombinatie_power_freeze
+        name: Power Freeze (snelvriezen)
+        icon: mdi:snowflake-variant
+      - type: divider
+      - entity: sensor.koelvriescombinatie_vermogen
+        name: Huidig vermogen
+        icon: mdi:lightning-bolt
+      - entity: sensor.koelvriescombinatie_energie
+        name: Totaal energie
+        icon: mdi:counter
+    state_color: true

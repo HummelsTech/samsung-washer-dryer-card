@@ -1,140 +1,308 @@
+# ============================================================
+# Samsung Washer-Dryer Combo Card
+# Stijl gebaseerd op phrz/lg-washer-dryer-card
+# Aangepast voor Samsung SmartThings combo apparaat
+# ============================================================
+#
+# Alle taakstatus opties van dit apparaat:
+#   was-fases:  pre_wash, delay_wash, weight_sensing, ai_wash, wash
+#               ai_rinse, rinse, ai_spin, spin
+#   droog-fases: drying, cooling, wrinkle_prevent, air_wash, freeze_protection
+#   einde:       finish, none
+#
+# Entiteiten in gebruik:
+#   sensor.was_taakstatus           → huidige taak (enum)
+#   sensor.was_machinestatus        → run / stop / pause
+#   sensor.was_resterende_tijd      → resterende tijd
+#   binary_sensor.was_afstandsbediening
+#   binary_sensor.was_child_lock
+#   select.was_water_temperature
+#   select.was_centrifuge_snelheid
+#   number.was_spoelcycli
+#   switch.was_bubble_soak
+#   sensor.was_progressie
+# ============================================================
+
 type: vertical-stack
 cards:
+
   - type: picture-elements
     elements:
-      - type: image
-        entity: sensor.washer_dryer_run_state
-        image: /local/lg-icons/dry.png
-        state_image:
-          Drying: /local/lg-icons/dry-on.png
+
+      # ── WAS-FASE ICONEN ──────────────────────────────────────
+
+      # Voorwas
+      - type: state-icon
+        entity: sensor.was_taakstatus
+        icon: mdi:water-minus-outline
         style:
-          top: 73%
-          left: 59%
-          width: 10%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_dryer_run_state
-        image: /local/lg-icons/cool.png
-        state_image:
-          Cooling: /local/lg-icons/cool-on.png
+          top: 25%
+          left: 13%
+          '--paper-item-icon-color': '#607d8b'
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: pre_wash
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:water-minus-outline
+            style:
+              top: 25%
+              left: 13%
+              color: '#1976d2'
+
+      # Wassen
+      - type: state-icon
+        entity: sensor.was_taakstatus
+        icon: mdi:water
         style:
-          top: 73%
-          left: 67%
-          width: 10%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_dryer_run_state
-        image: /local/lg-icons/sensing.png
-        state_image:
-          Detecting: /local/lg-icons/sensing-on.png
+          top: 25%
+          left: 30%
+          '--paper-item-icon-color': '#607d8b'
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: wash
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:water
+            style:
+              top: 25%
+              left: 30%
+              color: '#1976d2'
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: ai_wash
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:water
+            style:
+              top: 25%
+              left: 30%
+              color: '#00bcd4'
+
+      # Spoelen
+      - type: state-icon
+        entity: sensor.was_taakstatus
+        icon: mdi:water-sync
         style:
-          top: 33%
-          left: 33%
-          width: 20%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_dryer_run_state
-        image: /local/lg-icons/wash.png
-        state_image:
-          Washing: /local/lg-icons/wash-on.png
+          top: 25%
+          left: 47%
+          '--paper-item-icon-color': '#607d8b'
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: rinse
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:water-sync
+            style:
+              top: 25%
+              left: 47%
+              color: '#1976d2'
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: ai_rinse
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:water-sync
+            style:
+              top: 25%
+              left: 47%
+              color: '#00bcd4'
+
+      # Centrifuge
+      - type: state-icon
+        entity: sensor.was_taakstatus
+        icon: mdi:rotate-right
         style:
-          top: 33%
-          left: 51%
-          width: 20%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_dryer_run_state
-        image: /local/lg-icons/rinse.png
-        state_image:
-          Rinsing: /local/lg-icons/rinse-on.png
+          top: 25%
+          left: 64%
+          '--paper-item-icon-color': '#607d8b'
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: spin
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:rotate-right
+            style:
+              top: 25%
+              left: 64%
+              color: '#1976d2'
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: ai_spin
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:rotate-right
+            style:
+              top: 25%
+              left: 64%
+              color: '#00bcd4'
+
+      # ── DROOG-FASE ICONEN ────────────────────────────────────
+
+      # Drogen
+      - type: state-icon
+        entity: sensor.was_taakstatus
+        icon: mdi:tumble-dryer
         style:
-          top: 33%
-          left: 69%
-          width: 20%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_dryer_run_state
-        image: /local/lg-icons/spin.png
-        state_image:
-          Spinning: /local/lg-icons/spin-on.png
+          top: 55%
+          left: 20%
+          '--paper-item-icon-color': '#607d8b'
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: drying
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:tumble-dryer
+            style:
+              top: 55%
+              left: 20%
+              color: '#EF810E'
+
+      # Afkoelen
+      - type: state-icon
+        entity: sensor.was_taakstatus
+        icon: mdi:snowflake
         style:
-          top: 33%
-          left: 87%
-          width: 20%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_dryer
-        image: /local/lg-icons/wifi.png
-        state_image:
-          'on': /local/lg-icons/wifi-on.png
+          top: 55%
+          left: 40%
+          '--paper-item-icon-color': '#607d8b'
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: cooling
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:snowflake
+            style:
+              top: 55%
+              left: 40%
+              color: '#0099cc'
+
+      # Anti-kreuk
+      - type: state-icon
+        entity: sensor.was_taakstatus
+        icon: mdi:iron
         style:
-          top: 73%
-          left: 32%
-          width: 10%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_dryer_door_lock
-        image: /local/lg-icons/lock.png
-        state_image:
-          'on': /local/lg-icons/lock-on.png
+          top: 55%
+          left: 60%
+          '--paper-item-icon-color': '#607d8b'
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: wrinkle_prevent
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:iron
+            style:
+              top: 55%
+              left: 60%
+              color: '#ff9800'
+
+      # Klaar
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: finish
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:check-circle
+            style:
+              top: 55%
+              left: 80%
+              color: '#00d25b'
+
+      # ── STATUSBALK ONDERIN ───────────────────────────────────
+
+      # WiFi/afstandsbediening
+      - type: state-icon
+        entity: binary_sensor.was_afstandsbediening
+        icon: mdi:wifi
+        state_color: true
         style:
-          top: 73%
+          top: 80%
+          left: 30%
+
+      # Child lock
+      - type: state-icon
+        entity: binary_sensor.was_child_lock
+        icon: mdi:lock-outline
+        state_color: true
+        style:
+          top: 80%
           left: 45%
-          width: 10%
-          image-rendering: crisp
+
+      # Segment display — placeholder
       - type: state-label
-        entity: sensor.blank
-        prefix: '18:88'
+        entity: sensor.was_machinestatus
+        prefix: '00:00'
         style:
           color: '#555'
           font-family: segment7
-          font-size: 50px
-          left: 95%
-          top: 74%
-          transform: translate(-100%,-50%)
+          font-size: 45px
+          left: 90%
+          top: 80%
+          transform: 'translate(-100%,-50%)'
+
+      # Segment display — resterende tijd
       - type: state-label
-        entity: sensor.washer_dryer_time_display
+        entity: sensor.was_resterende_tijd
         style:
           color: '#8df427'
           font-family: segment7
-          font-size: 50px
-          left: 95%
-          top: 74%
-          transform: translate(-100%,-50%)
-    image: /local/hass-combo-card-bg.png
+          font-size: 45px
+          left: 90%
+          top: 80%
+          transform: 'translate(-100%,-50%)'
+
+      image: /local/hass-washer-card-bg.png
+
+  # ── DETAIL SECTIE (alleen actief bij run/pause) ──────────────
   - type: conditional
     conditions:
-      - entity: sensor.washer_dryer_run_state
-        state_not: '-'
-      - entity: sensor.washer_dryer_run_state
-        state_not: Standby
+      - entity: sensor.was_machinestatus
+        state_not: stop
     card:
       type: entities
       entities:
-        - entity: sensor.washer_dryer
-          type: attribute
-          attribute: water_temp
-          name: Water Temperature
+        - entity: sensor.was_taakstatus
+          name: Huidige taak
+          icon: mdi:washing-machine
+        - entity: sensor.was_progressie
+          name: Voortgang
+          icon: mdi:progress-clock
+        - entity: sensor.was_resterende_tijd
+          name: Resterende tijd
+          icon: mdi:timer-outline
+        - type: divider
+        - entity: select.was_water_temperature
+          name: Watertemperatuur
           icon: mdi:coolant-temperature
-        - entity: sensor.washer_dryer
-          type: attribute
-          attribute: spin_speed
-          name: Spin Speed
+        - entity: select.was_centrifuge_snelheid
+          name: Centrifuge snelheid
           icon: mdi:rotate-right
-        - entity: sensor.washer_dryer
-          type: attribute
-          attribute: dry_level
-          name: Dry Level
-          icon: mdi:air-filter
-        - entity: sensor.washer_dryer
-          type: attribute
-          attribute: run_state
-          name: Current State
-          icon: mdi:archive
-        - entity: sensor.washer_dryer
-          type: attribute
-          attribute: tubclean_count
-          name: Washes Since Tub Clean
-          icon: mdi:creation
-      state_color: false
-
+        - entity: number.was_spoelcycli
+          name: Spoelcycli
+          icon: mdi:water-sync
+        - entity: switch.was_bubble_soak
+          name: Bubble Soak
+          icon: mdi:bubble-fields
+      state_color: true

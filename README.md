@@ -1,38 +1,166 @@
-![112699616-35751b00-8e5a-11eb-9bf8-cc09af4847a9](https://user-images.githubusercontent.com/2007088/219449339-a4ee4d38-c8d2-45b9-96c0-0c4ad1325cb0.PNG)
-![138618307-c7b6a9f0-073e-44df-a70a-8c0acbcb033b](https://user-images.githubusercontent.com/2007088/219449465-211f7ba4-1b8d-4262-8b84-d91e2aa4fd36.png)
-![LG Fridge Card](images/fridge.png)
+# Samsung Washer & Fridge Card
 
+> Lovelace cards voor Home Assistant, gebaseerd op [phrz/lg-washer-dryer-card](https://github.com/phrz/lg-washer-dryer-card) — aangepast voor **Samsung SmartThings** apparaten.
 
-This repo is for Home Assistant users who want cards that look like their LG ThinQ enabled machines physical displays. You'll need the LG ThinQ integration already installed.
+![Home Assistant](https://img.shields.io/badge/Home%20Assistant-compatible-blue?logo=home-assistant)
+![HACS](https://img.shields.io/badge/HACS-manual-orange)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-This repo contains cards designed for the following device types:
-LG Washer
-LG Dryer
-LG Combo Washer/Dryer
-LG Mini-Washer
-LG Dishwasher
-LG Fridge
+---
 
-Known supported/tested models:
-MiniWasher: WTP20WY
-Combo Washer/Dryer:
-Dish Washer: XD3A25BS, DFB425FP
-Fridge: GC-L257SLXL
+## Inhoud
 
-This is expected to apply pretty widely to any/all LG ThinQ devices of these types, regardless of model. The implementation from the ThinQ integration is quite standardised, so most washer/dryer or combo machines should work, and the same for Dishwashers. 
+| Card | Bestand | Apparaat |
+|---|---|---|
+| Wasmachine | `samsung-washer-card.yaml` | Samsung wasmachine via SmartThings |
+| Washer-dryer combo | `samsung-washercombo-card.yaml` | Samsung combo (wassen + drogen) via SmartThings |
+| Koelvriescombinatie | `samsung-fridge-card.yaml` | Samsung koelvriescombinatie via SmartThings |
 
-# Installation (manual)
-1. Where `config` is the location of your `configuration.yaml` file, create `config/www` if it does not already exist. Then place the contents from this repository's `config/www` into yours.
-If you don't plan to user all the machine types, you can leave out the images that you don't require.
-2. On your Lovelace dashboard, click the three dots in the top right, and select `Edit Dashboard`. Now click the three dots again, and click `Manage Resources` (if you don't have this option, click your User on the sidebar and enable Advanced Mode). Tap `Add Resource` in the bottom right, then enter `/local/7segment.css` and ensure the type is set to `Stylesheet`. Complete the entry.
-3. Add the contents of this repository's `configuration.yaml` to your own. If you already have a template sensors entry like this, these sensors can be added alongside your other template sensors.
-4. **Important:** rename `sensor.washer` to the entity ID of your LG Washer, `sensor.washer_run_state` to the corresponding Washer Run State sensor, `sensor.dryer` to your dryer, and `sensor.dryer_run_state` to the Dryer Run State sensor. (In the configuration as well as the cards themselves)
-**Fridge rename:** In the fridge card configuration rename the following to your sensors and switches: `switch.refrigerator_express_fridge`, `switch.refrigerator_express_mode`, `sensor.refrigerator`, `binary_sensor.refrigerator_door_open`, `sensor.refrigerator_fridge_temp`, `sensor.refrigerator_freezer_temp`.
-**Note**: The config file contains sensors for multiple LG machines (Washer, Dryer, Dishwasher, etc.) -- Remove the entries you do not need.
-5. Restart Home Assistant for the changes to `configuration.yaml` to take effect. Confirm the entities created in that config exist now by searching under Entities. 
-5. Now go to your desired Lovelace dashboard, go to `Edit Dashboard`, and add a Vertical Stack card. Enter the Code Editor and paste in the contents of the device card YAML file you are wishing to implement.
-`washer-card.yaml`, `dryer-card.yaml`, `washercombo-card.yaml`, `dishwasher.yaml`, `miniwasher-card.yaml`, `fridge.yaml`
-6. _Optional:_ as written, these cards show a list of settings (temperature, cycle, etc.) underneath when the washer/dryer is running. If you don't want that, just remove the conditional card from the stack, or take the washer/dryer Picture Elements card out of the stack entirely and place it as its own card.
+---
 
-# Notes
-7segment font (c) Jan Bobrowski (OFL) - http://torinak.com/7segment
+## Vereisten
+
+### Integraties
+- [SmartThings](https://www.home-assistant.io/integrations/smartthings/) — officiële HA integratie
+- Samsung account gekoppeld aan SmartThings
+
+### Frontend resources (HACS of handmatig)
+- **7segment.css** — voor het segment-display lettertype op de cards  
+  Bron: originele [lg-washer-dryer-card](https://github.com/phrz/lg-washer-dryer-card/tree/main/config/www)
+
+  Toevoegen via Dashboard → drie puntjes → **Bronnen beheren** → Toevoegen:
+  ```
+  /local/7segment.css   (type: Stylesheet)
+  ```
+
+### Achtergrondafbeelding
+De cards gebruiken een achtergrondafbeelding als basis voor de picture-elements overlay.  
+Gebruik tijdelijk de LG originele achtergrond, of vervang door een eigen Samsung-stijl afbeelding:
+
+```
+/config/www/hass-washer-card-bg.png
+```
+
+---
+
+## Installatie
+
+1. Kopieer de gewenste `.yaml` bestanden naar je Home Assistant configuratiemap
+2. Zorg dat de frontend resource (`7segment.css`) beschikbaar is onder `/local/`
+3. Voeg de card toe via de Lovelace YAML-editor:
+   - Dashboard → Bewerken → drie puntjes → **Raw configuratie editor**
+   - Of voeg toe als losse card via **Code-editor** in de kaartenkiezer
+
+---
+
+## Wasmachine card
+
+### Entiteiten
+
+| Entiteit | Rol |
+|---|---|
+| `sensor.was_machinestatus` | Machinestatus (`stop` / `run` / `pause`) |
+| `sensor.was_taakstatus` | Taakstatus (`wash` / `rinse` / `spin` / `none` / `finished`) |
+| `sensor.was_resterende_tijd` | Resterende tijd (bijv. `0:32`) |
+| `binary_sensor.was_afstandsbediening` | Wifi / afstandsbediening actief |
+| `binary_sensor.was_child_lock` | Kinderbeveiliging |
+| `select.was_water_temperature` | Ingestelde watertemperatuur |
+| `select.was_centrifuge_snelheid` | Ingestelde centrifugesnelheid |
+| `sensor.was_progressie` | Voortgang in % |
+
+### States wasmachine
+
+De card reageert op de volgende SmartThings states:
+
+| `sensor.was_taakstatus` | Weergave |
+|---|---|
+| `wash` | Was-icoon actief |
+| `rinse` | Spoelen-icoon actief |
+| `spin` | Centrifuge-icoon actief |
+| `none` / `finished` | Alle iconen inactief |
+
+---
+
+## Washer-dryer combo card
+
+### Entiteiten
+Zelfde als de wasmachine card — geen extra entiteiten nodig. De card detecteert automatisch was- vs droog-fases via `sensor.was_taakstatus`.
+
+### Ondersteunde taakstatussen
+
+| State | Fase | Icoon |
+|---|---|---|
+| `pre_wash` | Voorwas | 💧− |
+| `wash` / `ai_wash` | Wassen | 💧 |
+| `rinse` / `ai_rinse` | Spoelen | 🔄 |
+| `spin` / `ai_spin` | Centrifuge | ↻ |
+| `drying` | Drogen | 🌀 oranje |
+| `cooling` | Afkoelen | ❄️ blauw |
+| `wrinkle_prevent` | Anti-kreuk | 🔶 oranje |
+| `finish` | Klaar | ✅ groen |
+| `none` | Standby | alle iconen grijs |
+
+---
+
+## Koelvriescombinatie card
+
+### Entiteiten
+
+| Entiteit | Rol |
+|---|---|
+| `binary_sensor.koelvriescombinatie_fridge_door` | Koelkastdeur open/dicht |
+| `binary_sensor.koelvriescombinatie_freezer_door` | Vriezerdeur open/dicht |
+| `number.koelvriescombinatie_koelkasttemperatuur` | Ingestelde koelkasttemperatuur (°C) |
+| `number.koelvriescombinatie_freezer_temperature` | Ingestelde vriezertemperatuur (°C) |
+| `sensor.koelvriescombinatie_vermogen` | Huidig vermogen (W) |
+| `sensor.koelvriescombinatie_energie` | Totaal energieverbruik (kWh) |
+| `switch.koelvriescombinatie_power_cool` | Power Cool (snelkoelen) |
+| `switch.koelvriescombinatie_power_freeze` | Power Freeze (snelvriezen) |
+
+### Bekende issues — temperatuur
+
+De `sensor.*_temperature` entiteiten van SmartThings geven soms Fahrenheit terug terwijl de eenheid °C aangeeft. Voeg onderstaande template sensors toe als workaround:
+
+```yaml
+template:
+  - sensor:
+      - name: "Koelkast temperatuur °C"
+        unique_id: koelkast_temp_celsius
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state: >
+          {{ ((states('sensor.koelvriescombinatie_koelkasttemperatuur') | float - 32) * 5/9) | round(1) }}
+
+      - name: "Vriezer temperatuur °C"
+        unique_id: vriezer_temp_celsius
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state: >
+          {{ ((states('sensor.koelvriescombinatie_freezer_temperature') | float - 32) * 5/9) | round(1) }}
+```
+
+Vervang daarna in de card de `number.*` entiteiten door `sensor.koelkast_temp_celsius` en `sensor.vriezer_temp_celsius`.
+
+---
+
+## Aanpassen aan jouw entiteitnamen
+
+Alle entiteit-ID's in de YAML-bestanden zijn gebaseerd op één specifieke setup. Zoek en vervang de prefixen als jouw apparaten anders heten:
+
+| Prefix in deze repo | Vervang door |
+|---|---|
+| `was_` | jouw wasmachine prefix |
+| `koelvriescombinatie_` | jouw koelkast prefix |
+
+---
+
+## Credits
+
+Gebaseerd op het uitstekende werk van [@phrz](https://github.com/phrz):  
+[phrz/lg-washer-dryer-card](https://github.com/phrz/lg-washer-dryer-card) — originele LG ThinQ Lovelace cards
+
+---
+
+## Licentie
+
+MIT — vrij te gebruiken, aanpassen en delen.

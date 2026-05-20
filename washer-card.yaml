@@ -1,81 +1,149 @@
-# NOTE: YOUR ENTITY NAMES MAY BE DIFFERENT, THEN THIS WON'T WORK WITHOUT TWEAKING
-# =================================================================================
-# If your washer doesn't have entities named sensor.washer, sensor.washer_run_state
-# you have to change the names throughout here!
-
-# NOTE: THIS CODE EXPECTS YOUR THINQ INTEGRATION TO RETURN ENGLISH STRINGS
-# =================================================================================
-# if your LG account is in another region/language, this will probably break unless
-# you take the time to change out state strings like "Rinsing". Do this by watching
-# your machine's entities change states during a run, or look at its history.
+# ============================================================
+# Samsung Wasmachine Card — gebaseerd op phrz/lg-washer-dryer-card
+# Aangepast voor Samsung SmartThings entiteiten
+# Origineel: https://github.com/phrz/lg-washer-dryer-card
+# ============================================================
+#
+# VEREISTE HACS frontend resources (zelfde als LG card):
+#   - /local/7segment.css  (voor het segment-display lettertype)
+#
+# OPTIONEEL: vervang /local/samsung-washer-bg.png door eigen achtergrond
+# (of gebruik de originele LG achtergrond: /local/hass-washer-card-bg.png)
+#
+# Entiteiten in gebruik:
+#   sensor.was_taakstatus       → wash / rinse / spin / none / finished
+#   sensor.was_machinestatus    → run / stop / pause
+#   sensor.was_resterende_tijd  → resterende tijd (bijv. "0:32")
+#   binary_sensor.was_vermogen  → aan/uit
+#   binary_sensor.was_child_lock
+#   binary_sensor.was_afstandsbediening
+#   select.was_water_temperature
+#   select.was_centrifuge_snelheid
+#   sensor.was_progressie
+# ============================================================
 
 type: vertical-stack
 cards:
   - type: picture-elements
     elements:
-      - type: image
-        entity: sensor.washer_run_state
-        image: /local/lg-icons/sensing.png
-        state_image:
-          Detecting: /local/lg-icons/sensing-on.png
+
+      # --- Stap-iconen bovenin (was / spoelen / centrifuge) ---
+
+      - type: state-icon
+        entity: sensor.was_taakstatus
+        icon: mdi:washing-machine
+        state_color: true
         style:
           top: 33%
           left: 33%
           width: 20%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_run_state
-        image: /local/lg-icons/wash.png
-        state_image:
-          Washing: /local/lg-icons/wash-on.png
-        style:
-          top: 33%
-          left: 51%
-          width: 20%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_run_state
-        image: /local/lg-icons/rinse.png
-        state_image:
-          Rinsing: /local/lg-icons/rinse-on.png
-        style:
-          top: 33%
-          left: 69%
-          width: 20%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_run_state
-        image: /local/lg-icons/spin.png
-        state_image:
-          Spinning: /local/lg-icons/spin-on.png
-        style:
-          top: 33%
-          left: 87%
-          width: 20%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer
-        image: /local/lg-icons/wifi.png
-        state_image:
-          on: /local/lg-icons/wifi-on.png
+          '--paper-item-icon-color': '#607d8b'
+          '--paper-item-icon-active-color': '#1976d2'
+
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: wash
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:water
+            style:
+              top: 33%
+              left: 51%
+              color: '#1976d2'
+
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state_not: wash
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:water-outline
+            style:
+              top: 33%
+              left: 51%
+              color: '#607d8b'
+
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: rinse
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:water-sync
+            style:
+              top: 33%
+              left: 69%
+              color: '#1976d2'
+
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state_not: rinse
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:water-sync
+            style:
+              top: 33%
+              left: 69%
+              color: '#607d8b'
+
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state: spin
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:rotate-right
+            style:
+              top: 33%
+              left: 87%
+              color: '#1976d2'
+
+      - type: conditional
+        conditions:
+          - entity: sensor.was_taakstatus
+            state_not: spin
+        elements:
+          - type: state-icon
+            entity: sensor.was_taakstatus
+            icon: mdi:rotate-right
+            style:
+              top: 33%
+              left: 87%
+              color: '#607d8b'
+
+      # --- Status iconen onderin ---
+
+      # WiFi / verbinding (SmartThings device tracker)
+      - type: state-icon
+        entity: binary_sensor.was_afstandsbediening
+        icon: mdi:wifi
+        state_color: true
         style:
           top: 73%
           left: 32%
           width: 10%
-          image-rendering: crisp
-      - type: image
-        entity: sensor.washer_door_lock
-        image: /local/lg-icons/lock.png
-        state_image:
-          on: /local/lg-icons/lock-on.png
+
+      # Child lock
+      - type: state-icon
+        entity: binary_sensor.was_child_lock
+        icon: mdi:lock-outline
+        state_color: true
         style:
           top: 73%
           left: 45%
           width: 10%
-          image-rendering: crisp
+
+      # Segment display — achtergrond (dimmed placeholder)
       - type: state-label
-        entity: sensor.blank
-        prefix: '18:88'
+        entity: sensor.was_machinestatus
+        prefix: '00:00'
         style:
           color: '#555'
           font-family: segment7
@@ -83,8 +151,10 @@ cards:
           left: 95%
           top: 74%
           transform: 'translate(-100%,-50%)'
+
+      # Segment display — resterende tijd (actief, groen)
       - type: state-label
-        entity: sensor.washer_time_display
+        entity: sensor.was_resterende_tijd
         style:
           color: '#8df427'
           font-family: segment7
@@ -92,27 +162,32 @@ cards:
           left: 95%
           top: 74%
           transform: 'translate(-100%,-50%)'
-    image: /local/hass-washer-card-bg.png
+
+      # Achtergrondafbeelding — vervang door eigen Samsung achtergrond
+      # of gebruik de LG achtergrond als tijdelijke placeholder
+      image: /local/hass-washer-card-bg.png
+
+  # --- Detail-entiteiten (alleen zichtbaar als machine actief is) ---
   - type: conditional
     conditions:
-      - entity: sensor.washer_run_state
-        state_not: '-'
+      - entity: sensor.was_machinestatus
+        state_not: stop
     card:
       type: entities
       entities:
-        - entity: sensor.washer
-          type: attribute
-          attribute: current_course
-          name: Current Course
-          icon: 'mdi:tune-vertical-variant'
-        - entity: sensor.washer
-          type: attribute
-          attribute: water_temp
-          name: Water Temperature
-          icon: 'mdi:coolant-temperature'
-        - entity: sensor.washer
-          type: attribute
-          attribute: spin_speed
-          name: Spin Speed
-          icon: 'mdi:rotate-right'
-      state_color: false
+        - entity: select.was_water_temperature
+          name: Watertemperatuur
+          icon: mdi:coolant-temperature
+        - entity: select.was_centrifuge_snelheid
+          name: Centrifuge snelheid
+          icon: mdi:rotate-right
+        - entity: sensor.was_progressie
+          name: Voortgang
+          icon: mdi:progress-clock
+        - entity: sensor.was_resterende_tijd
+          name: Resterende tijd
+          icon: mdi:timer-outline
+        - entity: sensor.was_taakstatus
+          name: Taakstatus
+          icon: mdi:washing-machine
+      state_color: true
