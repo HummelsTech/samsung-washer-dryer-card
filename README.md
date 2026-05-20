@@ -3,7 +3,6 @@
 > Lovelace cards voor Home Assistant, gebaseerd op [phrz/lg-washer-dryer-card](https://github.com/phrz/lg-washer-dryer-card) — aangepast voor **Samsung SmartThings** apparaten.
 
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-compatible-blue?logo=home-assistant)
-![HACS](https://img.shields.io/badge/HACS-manual-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
@@ -45,11 +44,14 @@ Gebruik tijdelijk de LG originele achtergrond, of vervang door een eigen Samsung
 
 ## Installatie
 
-1. Kopieer de gewenste `.yaml` bestanden naar je Home Assistant configuratiemap
-2. Zorg dat de frontend resource (`7segment.css`) beschikbaar is onder `/local/`
-3. Voeg de card toe via de Lovelace YAML-editor:
-   - Dashboard → Bewerken → drie puntjes → **Raw configuratie editor**
-   - Of voeg toe als losse card via **Code-editor** in de kaartenkiezer
+Deze repo bevat YAML-configuratiebestanden — geen JavaScript custom card. Daardoor is HACS niet van toepassing. Installatie gaat handmatig:
+
+1. Download het gewenste `.yaml` bestand uit deze repo
+2. Kopieer de inhoud
+3. Ga in HA naar je dashboard → Bewerken → kaart toevoegen → **Code-editor**
+4. Plak de YAML en sla op
+
+Of voeg de card toe via de **Raw configuratie editor** van je dashboard.
 
 ---
 
