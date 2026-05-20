@@ -1,26 +1,7 @@
 # ============================================================
-# Samsung Washer-Dryer Combo Card
-# Stijl gebaseerd op phrz/lg-washer-dryer-card
-# Aangepast voor Samsung SmartThings combo apparaat
-# ============================================================
-#
-# Alle taakstatus opties van dit apparaat:
-#   was-fases:  pre_wash, delay_wash, weight_sensing, ai_wash, wash
-#               ai_rinse, rinse, ai_spin, spin
-#   droog-fases: drying, cooling, wrinkle_prevent, air_wash, freeze_protection
-#   einde:       finish, none
-#
-# Entiteiten in gebruik:
-#   sensor.was_taakstatus           → huidige taak (enum)
-#   sensor.was_machinestatus        → run / stop / pause
-#   sensor.was_resterende_tijd      → resterende tijd
-#   binary_sensor.was_afstandsbediening
-#   binary_sensor.was_child_lock
-#   select.was_water_temperature
-#   select.was_centrifuge_snelheid
-#   number.was_spoelcycli
-#   switch.was_bubble_soak
-#   sensor.was_progressie
+# Samsung Washer-Dryer Combo Card — LG iconen stijl
+# Iconen: /local/apparaten/lg-icons/
+# Achtergrond: /local/apparaten/hass-washer-card-bg.png
 # ============================================================
 
 type: vertical-stack
@@ -29,253 +10,127 @@ cards:
   - type: picture-elements
     elements:
 
-      # ── WAS-FASE ICONEN ──────────────────────────────────────
-
-      # Voorwas
-      - type: state-icon
-        entity: sensor.was_taakstatus
-        icon: mdi:water-minus-outline
-        style:
-          top: 25%
-          left: 13%
-          '--paper-item-icon-color': '#607d8b'
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: pre_wash
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:water-minus-outline
-            style:
-              top: 25%
-              left: 13%
-              color: '#1976d2'
+      # ── WAS-FASE ICONEN ───────────────────────────────────
 
       # Wassen
-      - type: state-icon
+      - type: image
         entity: sensor.was_taakstatus
-        icon: mdi:water
+        image: /local/apparaten/lg-icons/wash.png
+        state_image:
+          wash: /local/apparaten/lg-icons/wash-on.png
+          ai_wash: /local/apparaten/lg-icons/wash-on.png
+          pre_wash: /local/apparaten/lg-icons/wash-on.png
         style:
-          top: 25%
-          left: 30%
-          '--paper-item-icon-color': '#607d8b'
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: wash
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:water
-            style:
-              top: 25%
-              left: 30%
-              color: '#1976d2'
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: ai_wash
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:water
-            style:
-              top: 25%
-              left: 30%
-              color: '#00bcd4'
+          top: 33%
+          left: 33%
+          width: 20%
+          image-rendering: crisp-edges
 
       # Spoelen
-      - type: state-icon
+      - type: image
         entity: sensor.was_taakstatus
-        icon: mdi:water-sync
+        image: /local/apparaten/lg-icons/rinse.png
+        state_image:
+          rinse: /local/apparaten/lg-icons/rinse-on.png
+          ai_rinse: /local/apparaten/lg-icons/rinse-on.png
         style:
-          top: 25%
-          left: 47%
-          '--paper-item-icon-color': '#607d8b'
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: rinse
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:water-sync
-            style:
-              top: 25%
-              left: 47%
-              color: '#1976d2'
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: ai_rinse
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:water-sync
-            style:
-              top: 25%
-              left: 47%
-              color: '#00bcd4'
+          top: 33%
+          left: 51%
+          width: 20%
+          image-rendering: crisp-edges
 
       # Centrifuge
-      - type: state-icon
+      - type: image
         entity: sensor.was_taakstatus
-        icon: mdi:rotate-right
+        image: /local/apparaten/lg-icons/spin.png
+        state_image:
+          spin: /local/apparaten/lg-icons/spin-on.png
+          ai_spin: /local/apparaten/lg-icons/spin-on.png
         style:
-          top: 25%
-          left: 64%
-          '--paper-item-icon-color': '#607d8b'
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: spin
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:rotate-right
-            style:
-              top: 25%
-              left: 64%
-              color: '#1976d2'
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: ai_spin
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:rotate-right
-            style:
-              top: 25%
-              left: 64%
-              color: '#00bcd4'
+          top: 33%
+          left: 69%
+          width: 20%
+          image-rendering: crisp-edges
 
-      # ── DROOG-FASE ICONEN ────────────────────────────────────
+      # ── DROOG-FASE ICONEN ─────────────────────────────────
 
       # Drogen
-      - type: state-icon
+      - type: image
         entity: sensor.was_taakstatus
-        icon: mdi:tumble-dryer
+        image: /local/apparaten/lg-icons/dry.png
+        state_image:
+          drying: /local/apparaten/lg-icons/dry-on.png
         style:
           top: 55%
-          left: 20%
-          '--paper-item-icon-color': '#607d8b'
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: drying
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:tumble-dryer
-            style:
-              top: 55%
-              left: 20%
-              color: '#EF810E'
+          left: 33%
+          width: 20%
+          image-rendering: crisp-edges
 
-      # Afkoelen
-      - type: state-icon
+      # Afkoelen / anti-kreuk
+      - type: image
         entity: sensor.was_taakstatus
-        icon: mdi:snowflake
+        image: /local/apparaten/lg-icons/cool.png
+        state_image:
+          cooling: /local/apparaten/lg-icons/cool-on.png
+          wrinkle_prevent: /local/apparaten/lg-icons/cool-on.png
         style:
           top: 55%
-          left: 40%
-          '--paper-item-icon-color': '#607d8b'
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: cooling
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:snowflake
-            style:
-              top: 55%
-              left: 40%
-              color: '#0099cc'
+          left: 51%
+          width: 20%
+          image-rendering: crisp-edges
 
-      # Anti-kreuk
-      - type: state-icon
-        entity: sensor.was_taakstatus
-        icon: mdi:iron
-        style:
-          top: 55%
-          left: 60%
-          '--paper-item-icon-color': '#607d8b'
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: wrinkle_prevent
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:iron
-            style:
-              top: 55%
-              left: 60%
-              color: '#ff9800'
+      # ── STATUS ICONEN ONDERIN ─────────────────────────────
 
-      # Klaar
-      - type: conditional
-        conditions:
-          - entity: sensor.was_taakstatus
-            state: finish
-        elements:
-          - type: state-icon
-            entity: sensor.was_taakstatus
-            icon: mdi:check-circle
-            style:
-              top: 55%
-              left: 80%
-              color: '#00d25b'
-
-      # ── STATUSBALK ONDERIN ───────────────────────────────────
-
-      # WiFi/afstandsbediening
-      - type: state-icon
+      # WiFi / afstandsbediening
+      - type: image
         entity: binary_sensor.was_afstandsbediening
-        icon: mdi:wifi
-        state_color: true
+        image: /local/apparaten/lg-icons/wifi.png
+        state_image:
+          'on': /local/apparaten/lg-icons/wifi-on.png
         style:
-          top: 80%
-          left: 30%
+          top: 73%
+          left: 32%
+          width: 10%
+          image-rendering: crisp-edges
 
       # Child lock
-      - type: state-icon
+      - type: image
         entity: binary_sensor.was_child_lock
-        icon: mdi:lock-outline
-        state_color: true
+        image: /local/apparaten/lg-icons/lock.png
+        state_image:
+          'on': /local/apparaten/lg-icons/lock-on.png
         style:
-          top: 80%
+          top: 73%
           left: 45%
+          width: 10%
+          image-rendering: crisp-edges
 
-      # Segment display — placeholder
+      # Segment display — placeholder (grijs)
       - type: state-label
         entity: sensor.was_machinestatus
         prefix: '00:00'
         style:
           color: '#555'
           font-family: segment7
-          font-size: 45px
-          left: 90%
-          top: 80%
+          font-size: 50px
+          left: 95%
+          top: 74%
           transform: 'translate(-100%,-50%)'
 
-      # Segment display — resterende tijd
+      # Segment display — resterende tijd (groen)
       - type: state-label
         entity: sensor.was_resterende_tijd
         style:
           color: '#8df427'
           font-family: segment7
-          font-size: 45px
-          left: 90%
-          top: 80%
+          font-size: 50px
+          left: 95%
+          top: 74%
           transform: 'translate(-100%,-50%)'
 
-      image: /local/hass-washer-card-bg.png
+      image: /local/apparaten/hass-washer-card-bg.png
 
-  # ── DETAIL SECTIE (alleen actief bij run/pause) ──────────────
+  # ── DETAIL SECTIE (alleen actief bij run/pause) ──────────
   - type: conditional
     conditions:
       - entity: sensor.was_machinestatus
